@@ -2,8 +2,30 @@ import { FC, useState } from 'react';
 import React from 'react';
 import { Button, DatePicker, Form, Input, Row, Select } from 'antd';
 import { rules } from '../utils/rules';
+import { IUser } from '../models/user';
+import { IEvent } from '../models/IEvent';
+import { Moment } from 'moment';
+import { formDate } from '../utils/dates';
 
-const EventForm: FC = () => {
+interface EventFormProps {
+	guests: IUser[]
+}
+
+const EventForm: FC<EventFormProps> = (props) => {
+
+	const [event, SetEvent] = useState<IEvent>({
+		author: '',
+		date: '',
+		descrition: '',
+		guest: ''
+	} as IEvent)
+
+	const selectDate = (date: Moment | null) => {
+		if(date){
+		console.log(formDate(date.toDate()))
+
+		}
+	}
 
 	return ( 
 		<Form>
@@ -12,16 +34,20 @@ const EventForm: FC = () => {
 				name="descrioption"
 				rules={[rules.required('Please input event description!')]}
 			>
-				<Input/>
+				<Input
+				onChange={e => SetEvent({...event, descrition: e.target.value})}
+				value={event.descrition}
+				/>
       		</Form.Item>
-			<Form.Item>
-			<Select>
-				<Select.Option value="jack">Jack</Select.Option>
-				<Select.Option value="lucy">Lucy</Select.Option>
-				<Select.Option value="disabled" disabled>
-					Disabled
-				</Select.Option>
-				<Select.Option value="Yiminghe">yiminghe</Select.Option>
+			<Form.Item
+				label="Guests"
+				name="guests"
+				rules={[rules.required('Please select guests!')]}
+			>
+			<Select onChange={(guest: string) => SetEvent({...event, guest: guest})}>
+				{props.guests.map((g) => 
+				<Select.Option key={g.username} value={g.username}>{g.username}</Select.Option>
+				)}
 			</Select>
 			</Form.Item>
 			<Form.Item
@@ -29,7 +55,9 @@ const EventForm: FC = () => {
 				name="date"
 				rules={[rules.required('Please input date!')]}
 			>
-			<DatePicker/>  
+			<DatePicker
+				onChange={(date) => selectDate(date)}
+			/>  
       		</Form.Item>	
 
 			<Row justify='end'>
